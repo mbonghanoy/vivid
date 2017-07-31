@@ -27,8 +27,8 @@ class Vivid
 
     public function __construct($host, $root, $password, $dbName)
     {
-        try{
-        $this->conn = new PDO("mysql:host=$host;dbname=$dbName", $root, $password);
+        try {
+            $this->conn = new PDO("mysql:host=$host;dbname=$dbName", $root, $password);
         } catch(PDOException $e){
             die($e->GetMessage());
         }
@@ -45,17 +45,18 @@ class Vivid
         return $this->results;
     }
 
-    public function get(){
-        try{
-        $sql = "SELECT * FROM $this->table";
-        $query = $this->conn->prepare($sql);
-        $query->execute();
-        $this->results = $query->fetchAll(PDO::FETCH_OBJ);
-        return $this->results;
-        }catch(PDOException $ex){
-        echo $ex->getMessage();
+    public function get()
+    {
+        try {
+            $sql = "SELECT * FROM $this->table";
+            $query = $this->conn->prepare($sql);
+            $query->execute();
+            $this->results = $query->fetchAll(PDO::FETCH_OBJ);
+            return $this->results;
+        } catch(PDOException $ex) {
+            echo $ex->getMessage();
         }
-        }
+    }
 
     public function limit($limit)
     {
@@ -64,12 +65,12 @@ class Vivid
         }else {
             $sql = "SELECT * FROM $this->limit";
         }
-        try{
+        try {
             $sql = "SELECT * FROM $this->table";
             $query = $this->conn->prepare($sql);
             $query->execute();
             $this->results = $query->fetchAll(PDO::FETCH_OBJ);
-        }catch(PDOException $ex){
+        }catch(PDOException $ex) {
             echo $ex->getMessage();
         }
         return $this->results;
