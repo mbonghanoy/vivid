@@ -1,0 +1,15 @@
+{
+    "name": "mjohn/vivid",
+    "authors": [
+        {
+            "name": "mbonghanoy",
+            "email": "bonghanoymark@gmail.com"
+        }
+    ],
+    "autoload": {
+        "classmap": [
+            "src"
+        ]
+    },
+    "require": {}
+}
