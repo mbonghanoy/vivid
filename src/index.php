@@ -15,7 +15,15 @@
 class Vivid
 {
 
-    protected $conn, $table, $query, $results, $limit;
+    protected $conn;
+
+    protected $table;
+
+    protected $query;
+
+    protected $results;
+
+    protected $limit;
 
     public function __construct($host, $root, $password, $dbName)
     {
@@ -34,7 +42,7 @@ class Vivid
     public function table($table)
     {
         $this->table = $table;
-        return $this;
+        return $this->results;
     }
 
     public function get(){
@@ -43,10 +51,10 @@ class Vivid
         $query = $this->conn->prepare($sql);
         $query->execute();
         $this->results = $query->fetchAll(PDO::FETCH_OBJ);
+        return $this->results;
         }catch(PDOException $ex){
         echo $ex->getMessage();
         }
-        return var_dump($this->results);
         }
 
     public function limit($limit)
@@ -64,7 +72,7 @@ class Vivid
         }catch(PDOException $ex){
             echo $ex->getMessage();
         }
-        return var_dump($this->results);
+        return $this->results;
     }
 
 }
