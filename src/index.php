@@ -1,17 +1,5 @@
 <?php
 
-/**
- * Github:
- * @author rdpascua/vivid
- *
- * Must use composer
- * Must use PDO
- */
-
-/**
- * Install mysql-workbench
- */
-
 class Vivid
 {
 
@@ -128,22 +116,3 @@ class Vivid
         return $this;
     }
 }
-
-$vivid = new Vivid('localhost', 'root', 'password', 'phonebook');
-
-$data = [
-        'first_name' => 'mark',
-        'last_name' => 'bonghanoy',
-        'middle_name' => 'neis'
-];
-$vivid->table('user')
-    ->insert('first_name', 'mark');
-
-/**
- * Object
- */
-/*$users = [
-    [
-        'first_name' => 'Mark'
-    ]
-];*/
