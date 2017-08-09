@@ -94,25 +94,33 @@ class Vivid
             $key = implode(",", $keys);
             $values = array_values($data);
             $value = implode("','", $values);
-            $sql = "INSERT INTO $this->table($key) VALUES ('$value')";
+            $sql = "INSERT INTO $this->table($key) VALUES (?)";
             $query = $this->conn->prepare($sql);
-            $query->execute();
+            $query->execute(array($data));
             $this->results = $query->fetchAll(PDO::FETCH_OBJ);
         }catch (PDOException $ex) {
             echo $ex->getMessage();
         }
     }
-    public function edit($editRow, $editValue)
+    public function edit($newInput = [], $user_id)
     {
         try{
-            $sql = "UPDATE $this->table SET $editRow = '$editValue'";
+            foreach($newInput as $key=>$value){
+            $sql = "UPDATE $this->table SET $key = ? WHERE user_id = ?";
             $query = $this->conn->prepare($sql);
-            $query->execute();
-            $this->results = $query->fetchAll(PDO::FETCH_OBJ);
-            return $this->results;
+            $query->execute(array($value, $user_id));
+        }
         }catch (PDOException $ex) {
             echo $ex->getMessage();
         }
         return $this;
     }
 }
+
+$connection = new Vivid('localhost', 'root', 'password', 'phonebook');
+$newInput = [
+    'first_name'=>'jMark',
+    'last_name'=>'hey',
+];
+$user = $connection->table('user')
+    ->edit($newInput, '1');
