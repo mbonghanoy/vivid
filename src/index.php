@@ -25,6 +25,8 @@ class Vivid
 
     protected $limit;
 
+    protected $conditionColumn;
+
     public function __construct($host, $root, $password, $dbName)
     {
         try {
@@ -42,7 +44,7 @@ class Vivid
     public function table($table)
     {
         $this->table = $table;
-        return $this->results;
+        return $this;
     }
 
     public function get()
@@ -61,33 +63,81 @@ class Vivid
     public function limit($limit)
     {
         if(isset($this->limit)){
-            $sql = "SELECT * FROM $this->$table LIMIT $this->limit";
+            $sql = "SELECT * FROM $this->table LIMIT $this->limit";
         }else {
-            $sql = "SELECT * FROM $this->limit";
-        }
-        try {
             $sql = "SELECT * FROM $this->table";
+        }
+
+        try {
+           $sql = "SELECT * FROM $this->table";
             $query = $this->conn->prepare($sql);
             $query->execute();
             $this->results = $query->fetchAll(PDO::FETCH_OBJ);
         }catch(PDOException $ex) {
             echo $ex->getMessage();
         }
-        return $this->results;
+        return $this;
     }
 
+    public function where($conditionColumn, $conditionValue)
+    {
+            if(isset($conditionValue)){
+                $whereSql = "SELECT * FROM $this->table WHERE $conditionColumn = ?";
+            }else {
+                $whereSql = "SELECT * FROM $this->table";
+            }
+
+        try {
+            $sql = $whereSql;
+            $query = $this->conn->prepare($sql);
+            $query->execute(array($conditionValue));
+            $this->results = $query->fetchAll(PDO::FETCH_OBJ);
+            return $this->results;
+        }catch(PDOException $ex) {
+            echo $ex->getMessage();
+        }
+        return $this;
+    }
+
+    public function insert($data = [])
+    {
+        try{
+            $keys = array_keys($data);
+            $key = implode(",", $keys);
+            $values = array_values($data);
+            $value = implode("','", $values);
+            $sql = "INSERT INTO $this->table($key) VALUES ('$value')";
+            $query = $this->conn->prepare($sql);
+            $query->execute();
+            $this->results = $query->fetchAll(PDO::FETCH_OBJ);
+        }catch (PDOException $ex) {
+            echo $ex->getMessage();
+        }
+    }
+    public function edit($editRow, $editValue)
+    {
+        try{
+            $sql = "UPDATE $this->table SET $editRow = '$editValue'";
+            $query = $this->conn->prepare($sql);
+            $query->execute();
+            $this->results = $query->fetchAll(PDO::FETCH_OBJ);
+            return $this->results;
+        }catch (PDOException $ex) {
+            echo $ex->getMessage();
+        }
+        return $this;
+    }
 }
 
 $vivid = new Vivid('localhost', 'root', 'password', 'phonebook');
 
-$vivid
-    ->table('person')
-    ->get(); // Select all
-
-$vivid
-    ->table('users')
-    ->limit(10)
-    ->get(); // 10
+$data = [
+        'first_name' => 'mark',
+        'last_name' => 'bonghanoy',
+        'middle_name' => 'neis'
+];
+$vivid->table('user')
+    ->insert('first_name', 'mark');
 
 /**
  * Object
