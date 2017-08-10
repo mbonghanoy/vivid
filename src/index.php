@@ -110,7 +110,7 @@ class Vivid
             $sql = "UPDATE $this->table SET $key = ? WHERE user_id = ?";
             $query = $this->conn->prepare($sql);
             $query->execute(array($value, $user_id));
-        }
+            }
         }catch (PDOException $ex) {
             echo $ex->getMessage();
         }
