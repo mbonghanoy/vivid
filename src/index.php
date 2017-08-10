@@ -117,11 +117,3 @@ class Vivid
         return $this;
     }
 }
-
-$connection = new Vivid('localhost', 'root', 'password', 'phonebook');
-$data = [
-    'first_name'=>'jMark',
-    'last_name'=>'hey',
-];
-$user = $connection->table('user')
-    ->insert($data);
