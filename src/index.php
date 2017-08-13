@@ -116,4 +116,21 @@ class Vivid
         }
         return $this;
     }
+
+    public function deleteRecord($user_id)
+    {
+        try{
+            $sql = "DELETE FROM $this->table WHERE user_id = ?";
+            $query = $this->conn->prepare($sql);
+            $query->execute(array($user_id));
+        }catch (PDOException $ex) {
+            echo $ex->getMessage();
+        }
+        return $this;
+    }
 }
+
+$connection = new Vivid('localhost', 'root', 'password', 'phonebook');
+
+$user = $connection->table('user')
+    ->deleteRecord(19);
