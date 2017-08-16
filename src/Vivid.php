@@ -1,8 +1,9 @@
 <?php
 
-require_once('../vendor/autoload.php');
-
 namespace Vivid;
+
+use PDO;
+use PDOException;
 
 class Vivid
 {
