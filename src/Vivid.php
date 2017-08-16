@@ -2,6 +2,8 @@
 
 require_once('../vendor/autoload.php');
 
+namespace Vivid;
+
 class Vivid
 {
     protected $table='user';
