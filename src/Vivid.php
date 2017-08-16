@@ -107,8 +107,3 @@ class Vivid
         return $statement->fetchAll(PDO::FETCH_OBJ);
     }
 }
-$dotenv = new \Dotenv\Dotenv(__DIR__ . '/../');
-$dotenv->load();
-
-$user = new Vivid;
-vdump($user->all());
