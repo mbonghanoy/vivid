@@ -1,136 +1,111 @@
 <?php
 
+require_once('../vendor/autoload.php');
+
 class Vivid
 {
+    protected $table='user';
 
-    protected $conn;
-
-    protected $table;
-
+    protected $attributes = [];
+    protected $host;
+    protected $username;
+    protected $password;
+    protected $database;
+    protected $connection;
     protected $query;
+    protected $parameters = [];
 
-    protected $results;
-
-    protected $limit;
-
-    protected $conditionColumn;
-
-    public function __construct($host, $root, $password, $dbName)
+    public function __construct($host = null, $username = null, $password = null, $database = null)
     {
-        try {
-            $this->conn = new PDO("mysql:host=$host;dbname=$dbName", $root, $password);
-        } catch(PDOException $e){
-            die($e->GetMessage());
-        }
+        $this->host = $host ?? $_ENV['DB_HOST'];
+        $this->username = $username ?? $_ENV['DB_USER'];
+        $this->password = $password ?? $_ENV['DB_PASS'];
+        $this->database = $database ?? $_ENV['DB_NAME'];
+
+        $this->make();
     }
-        /**
-         * Select the table in which the query will perform
-         *
-         * @param  string $table
-         * @return $this
-         */
-    public function table($table)
+    public function make()
     {
-        $this->table = $table;
+        $this->connection = new PDO(
+            sprintf('mysql:host=%s;dbname=%s;charset=utf8mb4', $this->host, $this->database),
+            $this->username,
+            $this->password
+        );
+    }
+
+     public function all($limit = 20)
+    {
+        if (!$this->table) {
+            throw new \Exception('You must set the table.');
+        }
+
+        try {
+            //connect as appropriate as above
+            $statement = $this
+                ->connection
+                ->prepare("SELECT * FROM {$this->table} LIMIT :limit");
+
+            $statement->bindParam(':limit', $limit, PDO::PARAM_INT);
+
+            $statement->execute();
+        } catch(PDOException $ex) {
+            vdump($ex->getMessage());
+        }
+
+        return $statement->fetchAll(PDO::FETCH_OBJ);
+    }
+
+    public function limit($limit = 10)
+    {
+        $this->query .= "LIMIT :limit ";
+
+        $this->addParameter(':limit', $limit, PDO::PARAM_INT);
+
+        return $this;
+    }
+
+     public function addParameter($parameter, $value, $attribute = null)
+    {
+        $this->parameters[$parameter] = [
+            'value' => $value,
+            'attribute' => $attribute
+        ];
+    }
+
+    public function where($column, $value)
+    {
+        $this->query .= "WHERE {$column} = :value ";
+
+        $this->addParameter(':value', $value, PDO::PARAM_STR);
+
         return $this;
     }
 
     public function get()
     {
         try {
-            $sql = "SELECT * FROM $this->table";
-            $query = $this->conn->prepare($sql);
-            $query->execute();
-            $this->results = $query->fetchAll(PDO::FETCH_OBJ);
-            return $this->results;
+            $statement = $this
+                ->connection
+                ->prepare("SELECT * FROM {$this->table} {$this->query}");
+
+            foreach($this->parameters as $key => $parameter) {
+                $statement->bindParam(
+                    $key,
+                    $parameter['value'],
+                    $parameter['attribute']
+                );
+            }
+
+            $statement->execute();
         } catch(PDOException $ex) {
-            echo $ex->getMessage();
-        }
-    }
-
-    public function limit($limit)
-    {
-        if(isset($this->limit)){
-            $sql = "SELECT * FROM $this->table LIMIT $this->limit";
-        }else {
-            $sql = "SELECT * FROM $this->table";
+            vdump($ex->getMessage());
         }
 
-        try {
-           $sql = "SELECT * FROM $this->table";
-            $query = $this->conn->prepare($sql);
-            $query->execute();
-            $this->results = $query->fetchAll(PDO::FETCH_OBJ);
-        }catch(PDOException $ex) {
-            echo $ex->getMessage();
-        }
-        return $this;
-    }
-
-    public function where($conditionColumn, $conditionValue)
-    {
-            if(isset($conditionValue)){
-                $whereSql = "SELECT * FROM $this->table WHERE $conditionColumn = ?";
-            }else {
-                $whereSql = "SELECT * FROM $this->table";
-            }
-
-        try {
-            $sql = $whereSql;
-            $query = $this->conn->prepare($sql);
-            $query->execute(array($conditionValue));
-            $this->results = $query->fetchAll(PDO::FETCH_OBJ);
-            return $this->results;
-        }catch(PDOException $ex) {
-            echo $ex->getMessage();
-        }
-        return $this;
-    }
-
-    public function insert($data = [])
-    {
-        try{
-            $keys = array_keys($data);
-            $key = implode(",", $keys);
-            $values = array_values($data);
-            $value = implode("','", $values);
-            $sql = "INSERT INTO $this->table($key) VALUES ('$value')";
-            $query = $this->conn->prepare($sql);
-            $query->execute();
-            $this->results = $query->fetchAll(PDO::FETCH_OBJ);
-        }catch (PDOException $ex) {
-            echo $ex->getMessage();
-        }
-    }
-
-    public function edit($newInput = [], $user_id)
-    {
-        try{
-            foreach($newInput as $key=>$value){
-            $sql = "UPDATE $this->table SET $key = ? WHERE user_id = ?";
-            $query = $this->conn->prepare($sql);
-            $query->execute(array($value, $user_id));
-            }
-        }catch (PDOException $ex) {
-            echo $ex->getMessage();
-        }
-        return $this;
-    }
-
-    public function deleteRecord($user_id)
-    {
-        try{
-            $sql = "DELETE FROM $this->table WHERE user_id = ?";
-            $query = $this->conn->prepare($sql);
-            $query->execute(array($user_id));
-        }catch (PDOException $ex) {
-            echo $ex->getMessage();
-        }
-        return $this;
+        return $statement->fetchAll(PDO::FETCH_OBJ);
     }
 }
+$dotenv = new \Dotenv\Dotenv(__DIR__ . '/../');
+$dotenv->load();
 
-$connection = new Vivid('localhost', 'root', 'password', 'phonebook');
-
-$user = $connection->table('user')
-    ->deleteRecord(19);
+$user = new Vivid;
+vdump($user->all());
