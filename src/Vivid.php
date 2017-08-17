@@ -106,4 +106,21 @@ class Vivid
 
         return $statement->fetchAll(PDO::FETCH_OBJ);
     }
+
+    public function insert($data = [])
+    {
+        try{
+            $keys = array_keys($data);
+            $key = implode(",", $keys);
+            $values = array_values($data);
+            $value = implode("','", $values);
+            $sql = "INSERT INTO $this->table($key) VALUES ('$value')";
+            $query = $this->connection->prepare($sql);
+            $query->execute();
+            $this->results = $query->fetchAll(PDO::FETCH_OBJ);
+            return true;
+        }catch (PDOException $ex) {
+            echo $ex->getMessage();
+        }
+    }
 }
