@@ -84,6 +84,24 @@ class Vivid
         return $this;
     }
 
+    public function andWhere($column, $values)
+    {
+        $this->query .= "AND {$column} = :values";
+
+        $this->addParameter(':values', $values, PDO::PARAM_STR);
+
+        return $this;
+    }
+
+    public function orWhere($column, $values)
+    {
+        $this->query .= "OR {$column} = :value ";
+
+        $this->addParameter(':value', $value, PDO::PARAM_STR);
+
+        return $this;
+    }
+
     public function get()
     {
         try {
