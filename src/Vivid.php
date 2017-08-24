@@ -27,6 +27,7 @@ class Vivid
 
         $this->make();
     }
+
     public function make()
     {
         $this->connection = new PDO(
@@ -36,9 +37,9 @@ class Vivid
         );
     }
 
-     public function all($limit = 20)
+    public function all($limit = 20)
     {
-        if (!$this->table) {
+        if(!$this->table) {
             throw new \Exception('You must set the table.');
         }
 
@@ -51,7 +52,7 @@ class Vivid
             $statement->bindParam(':limit', $limit, PDO::PARAM_INT);
 
             $statement->execute();
-        } catch(PDOException $ex) {
+        }catch(PDOException $ex) {
             vdump($ex->getMessage());
         }
 
@@ -124,7 +125,7 @@ class Vivid
             }
 
             $statement->execute();
-        } catch(PDOException $ex) {
+        }catch(PDOException $ex) {
             vdump($ex->getMessage());
         }
 
@@ -157,25 +158,27 @@ class Vivid
 
     public function update($newInput = [], $asset_id)
     {
-        try{
+        try {
             foreach($newInput as $key=>$value){
+
                 $sql = "UPDATE $this->table SET $key = ? WHERE asset_id = ?";
+
                 $query = $this
                     ->connection
                     ->prepare($sql);
+
                 $query->execute(array($value, $asset_id));
             }
 
-        }catch(PDOException $ex){
+        }catch(PDOException $ex) {
             echo $ex->getMessage();
         }
-
         return $this;
     }
 
     public function select($attrib)
     {
-        try{
+        try {
             $statement = $this
                 ->connection
                 ->prepare("SELECT {$attrib} FROM $this->table {$this->query}");
@@ -188,7 +191,7 @@ class Vivid
                 );
             }
             $statement->execute();
-        }catch(PDOException $ex){
+        }catch(PDOException $ex) {
             echo $ex->getMessage();
         }
 
@@ -198,7 +201,6 @@ class Vivid
     public function delete()
     {
         try {
-            //connect as appropriate as above
             $statement = $this
                 ->connection
                 ->prepare("DELETE FROM {$this->table} {$this->query}");
@@ -210,8 +212,9 @@ class Vivid
                     $parameter['attribute']
                 );
             }
+
             $statement->execute();
-        } catch(PDOException $ex) {
+        }catch(PDOException $ex) {
             vdump($ex->getMessage());
         }
     }
